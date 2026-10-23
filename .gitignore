@@ -1,0 +1,33 @@
+Python
+
+pycache/
+*.py[cod]
+
+Virtual environments
+
+.venv/
+venv/
+
+Testing and coverage
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+Environment variables and secrets
+
+.env
+.env.*
+
+Local databases and application data
+
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+Editor and operating system files
+
+.DS_Store
+.vscode/
+.idea/

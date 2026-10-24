@@ -1,0 +1,13 @@
+from dataclasses import dataclass
+
+@dataclass
+class VehicleListing:
+    make: str
+    model: str
+    year: int
+    mileage: int
+    asking_price: float
+    # optional and default to None
+    listing_url: str | None = None
+    source_site: str | None = None
+    notes: str | None = None

@@ -31,3 +31,5 @@ Editor and operating system files
 .DS_Store
 .vscode/
 .idea/
+
+try_model.py

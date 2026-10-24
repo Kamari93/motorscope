@@ -1,3 +1,4 @@
+# project metadata and Python requirements
 [project]
 name = "motorscope"
 version = "0.1.0"
@@ -10,3 +11,12 @@ dependencies = []
 dev = [
     "pytest>=9.1.1",
 ]
+
+# tool used to build the package
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# tell hatchling where the package lives
+[tool.hatch.build.targets.wheel]
+packages = ["app"]

@@ -32,4 +32,4 @@ Editor and operating system files
 .vscode/
 .idea/
 
-try_model.py
+try*

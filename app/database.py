@@ -1,6 +1,8 @@
 import sqlite3
 from pathlib import Path
 
+'''manages database connections and table initialization.'''
+
 DATABASE_PATH = "data/motorscope.db" # defines where the local database will live
 
 def get_connection() -> sqlite3.Connection:

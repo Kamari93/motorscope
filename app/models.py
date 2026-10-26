@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+''' defines what a vehicle listing looks like.'''
 @dataclass
 class VehicleListing:
     make: str

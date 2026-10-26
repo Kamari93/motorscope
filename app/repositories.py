@@ -36,3 +36,37 @@ class VehicleRepository:
             )
             
             return int(cursor.lastrowid)
+
+    def get_all(self) -> list[VehicleListing]:
+        '''Retrieve all vehicle listings.'''
+        with get_connection() as connection:
+            rows = connection.execute(
+                '''
+                SELECT
+                    make,
+                    model,
+                    year,
+                    mileage,
+                    asking_price,
+                    listing_url,
+                    source_site,
+                    notes
+                FROM vehicle_listings 
+                ORDER BY id
+                '''
+            ).fetchall()
+        
+        return [
+            # convert each row back into a vehicle object
+            VehicleListing(
+                make = row['make'],
+                model = row['model'],
+                year = row['year'],
+                mileage = row['mileage'],
+                asking_price = row['asking_price'],
+                listing_url = row['listing_url'],
+                source_site = row['source_site'],
+                notes = row['notes']
+            )
+            for row in rows
+        ]

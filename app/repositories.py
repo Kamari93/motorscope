@@ -8,7 +8,7 @@ class VehicleRepository:
     """Manage vehicle listing persistence."""
     def add(self, vehicle: VehicleListing) -> int:
         '''Save a vehicle listing and return its database ID.'''
-        with get_connection as connection:
+        with get_connection() as connection:
             cursor = connection.execute(
                 '''
                 INSERT INTO vehicle_listings (

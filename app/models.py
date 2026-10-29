@@ -12,3 +12,4 @@ class VehicleListing:
     listing_url: str | None = None
     source_site: str | None = None
     notes: str | None = None
+    id: int | None = None

@@ -43,6 +43,7 @@ class VehicleRepository:
             rows = connection.execute(
                 '''
                 SELECT
+                    id,
                     make,
                     model,
                     year,
@@ -66,7 +67,8 @@ class VehicleRepository:
                 asking_price = row['asking_price'],
                 listing_url = row['listing_url'],
                 source_site = row['source_site'],
-                notes = row['notes']
+                notes = row['notes'],
+                id = row['id'],
             )
             for row in rows
         ]
@@ -77,6 +79,7 @@ class VehicleRepository:
             row = connection.execute(
                 '''
                 SELECT
+                    id,
                     make,
                     model,
                     year,
@@ -103,6 +106,7 @@ class VehicleRepository:
             listing_url = row['listing_url'],
             source_site = row['source_site'],
             notes = row['notes'],
+            id = row['id'],
         )
 
     def update(self, listing_id: int, vehicle: VehicleListing) -> bool:

@@ -49,6 +49,7 @@ def test_add_and_retrieve_listing(tmp_path, monkeypatch):
     assert saved_vehicle.listing_url == "https://example.com/listing/123"
     assert saved_vehicle.source_site == "Example Motors"
     assert saved_vehicle.notes == "Service history not yet verified."
+    assert saved_vehicle.id == listing_id
 
 def test_get_by_id_returns_vehicle_listing(tmp_path, monkeypatch):
     test_database_path = tmp_path / "test_motorscope.db"
@@ -73,18 +74,19 @@ def test_get_by_id_returns_vehicle_listing(tmp_path, monkeypatch):
         asking_price=6200.00,
     )
 
-    id = repo.add(vehicle)
+    listing_id = repo.add(vehicle)
     listings = repo.get_all()
 
-    assert id == 1
+    assert listing_id == 1
     assert len(listings) == 1
 
-    result = repo.get_vehicle_by_id(id)
+    result = repo.get_vehicle_by_id(listing_id)
 
     assert result is not None
     assert result.make == 'Honda'
     assert result.model == 'CR-V'
     assert result.year == 2012
+    assert result.id == listing_id
 
 def test_get_by_id_returns_none_when_missing(tmp_path, monkeypatch):
     test_database_path = tmp_path / "test_motorscope.db"
@@ -210,4 +212,3 @@ def test_delete_returns_false_when_missing(tmp_path, monkeypatch):
     repo = VehicleRepository()
 
     assert repo.delete(999) is False
-    

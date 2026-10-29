@@ -87,6 +87,7 @@ def test_get_by_id_returns_vehicle_listing(tmp_path, monkeypatch):
     assert result.model == 'CR-V'
     assert result.year == 2012
     assert result.id == listing_id
+    
 
 def test_get_by_id_returns_none_when_missing(tmp_path, monkeypatch):
     test_database_path = tmp_path / "test_motorscope.db"

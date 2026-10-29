@@ -4,7 +4,6 @@ from app.database import get_connection
 
 '''handles saving and retrieving listings'''
 
-
 class VehicleRepository:
     """Manage vehicle listing persistence."""
     def add(self, vehicle: VehicleListing) -> int:

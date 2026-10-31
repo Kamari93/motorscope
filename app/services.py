@@ -1,10 +1,11 @@
 from app.models import VehicleListing
 from app.repositories import VehicleRepository
 
+'''Coordinate vehicle listing operations and business rules'''
 
 class VehicleService:
     def __init__(self, repository: VehicleRepository) -> None:
-        '''Coordinate vehicle listing operations and business rules'''
+        '''Constructor utilizing dependency injection'''
         self.repo = repository
 
     def add_vehicle_listing(self, vehicle: VehicleListing) -> int:

@@ -2,6 +2,7 @@ from app.models import VehicleListing
 from app.services import VehicleService
 
 '''The CLI will communicate with VehicleService, not directly with the repository or database.'''
+'''The CLI passes a vehicle object to the service. The service delegates persistence to the repository. This keeps database logic out of the user interface.'''
 
 def display_menu() -> None:
     """Display the main MotorScope menu."""

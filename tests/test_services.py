@@ -161,7 +161,7 @@ def test__add_vehicle_negative_asking_price(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match='Asking price cannot be negative.'):
         service.add_vehicle_listing(vehicle)
 
-def test__update_vehicle_negative_asking_price(tmp_path, monkeypatch):
+def test__update_vehicle_invalid_data(tmp_path, monkeypatch):
     test_database_path = tmp_path / 'test_motorscope.db'
     monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
     initialize_database()

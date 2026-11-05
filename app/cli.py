@@ -31,6 +31,28 @@ def prompt_float(msg: str) -> float:
         except ValueError:
             print('Please enter a valid number.')
 
+def prompt_optional_int(msg: str, current_val: int) -> int:
+    '''Prompt for an integer or retain the existing value.'''
+    while True:
+        value = input(msg).strip()
+        if not value:
+            return current_val
+        try:
+            return int(input(msg))
+        except ValueError:
+            print('Please enter a valid whole number.')
+
+def prompt_optional_float(msg:str, current_val: float) -> float:
+    '''Prompt for a float or retain the existing value.'''
+    while True:
+        value = input(msg).strip()
+        if not value:
+            return current_val
+        try:
+            return float(input(msg))
+        except ValueError:
+            print('Please enter a valid number.')
+
 def add_vehicle(service: VehicleService) -> None:
     '''Collect vehicle information and save a listing.'''
     print("\n--- Add Vehicle Listing ---")
@@ -47,9 +69,14 @@ def add_vehicle(service: VehicleService) -> None:
 
     )
 
-    listing_id = service.add_vehicle_listing(vehicle)
+    # listing_id = service.add_vehicle_listing(vehicle)
+    # print(f'\nVehicle listing saved successfully. ID: {listing_id}')
 
-    print(f'\nVehicle listing saved successfully. ID: {listing_id}')
+    try:
+        listing_id = service.add_vehicle_listing(vehicle)
+        print(f'\nVehicle listing saved successfully. ID: {listing_id}')
+    except ValueError as e:
+        print(f'Invalid vehicle information: {e}')
 
 def view_all_vehicles(service: VehicleService) -> None:
     '''Display all saved vehicle listings.'''
@@ -103,14 +130,17 @@ def update_vehicle(service: VehicleService) -> None:
     make = input(f'Make [{existing.make}]: ').strip() or existing.make
     model = input(f'Model [{existing.model}]: ').strip() or existing.model
 
-    year_input = input(f'Year [{existing.year}]: ').strip()
-    year = int(year_input) if year_input else existing.year
+    # year_input = input(f'Year [{existing.year}]: ').strip()
+    # year = int(year_input) if year_input else existing.year
+    year = prompt_optional_int(f'Year [{existing.year}]: ', existing.year)
 
-    mileage_input = input(f'Mileage [{existing.mileage}]: ').strip()
-    mileage = int(mileage_input) if mileage_input else existing.mileage
+    # mileage_input = input(f'Mileage [{existing.mileage}]: ').strip()
+    # mileage = int(mileage_input) if mileage_input else existing.mileage
+    mileage = prompt_optional_int(f'Mileage [{existing.mileage}]: ', existing.mileage)
 
-    price_input = input(f'Asking Price [{existing.asking_price}]: ').strip()
-    asking_price = float(price_input) if price_input else existing.asking_price
+    # price_input = input(f'Asking Price [{existing.asking_price}]: ').strip()
+    # asking_price = float(price_input) if price_input else existing.asking_price
+    asking_price = prompt_optional_float(f'Asking Price [{existing.asking_price}]: ', existing.asking_price)
 
     listing_url = (
         input(f'Listing URL [{existing.listing_url or 'None'}]: ').strip() or 
@@ -118,7 +148,7 @@ def update_vehicle(service: VehicleService) -> None:
     )
 
     source_site = (
-        input(f'Souce URL [{existing.source_site or 'None'}]: ').strip() or 
+        input(f'Souce Site [{existing.source_site or 'None'}]: ').strip() or 
         existing.source_site
         )
 
@@ -136,10 +166,18 @@ def update_vehicle(service: VehicleService) -> None:
         id = listing_id
     )
 
-    if service.update_vehicle_listing(listing_id, updated_vehicle):
-        print('Vehicle listing updated successfully.')
-    else:
-        print('Unable to update vehicle listing.')
+    # if service.update_vehicle_listing(listing_id, updated_vehicle):
+    #     print('Vehicle listing updated successfully.')
+    # else:
+    #     print('Unable to update vehicle listing.')
+
+    try:
+        if service.update_vehicle_listing(listing_id, updated_vehicle):
+            print('Vehicle listing updated successfully.')
+        else:
+            print('Unable to update vehicle listing.')
+    except ValueError as e:
+        print(f'Invalid vehicle information: {e}')
 
 def delete_vehicle(service: VehicleService) -> None:
     '''Delete a vehicle listing.'''

@@ -38,7 +38,7 @@ def prompt_optional_int(msg: str, current_val: int) -> int:
         if not value:
             return current_val
         try:
-            return int(input(msg))
+            return int(value)
         except ValueError:
             print('Please enter a valid whole number.')
 
@@ -49,7 +49,7 @@ def prompt_optional_float(msg:str, current_val: float) -> float:
         if not value:
             return current_val
         try:
-            return float(input(msg))
+            return float(value)
         except ValueError:
             print('Please enter a valid number.')
 

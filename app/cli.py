@@ -34,22 +34,22 @@ def prompt_float(msg: str) -> float:
 def prompt_optional_int(msg: str, current_val: int) -> int:
     '''Prompt for an integer or retain the existing value.'''
     while True:
-        value = input(msg).strip()
-        if not value:
+        new_value = input(msg).strip()
+        if not new_value:
             return current_val
         try:
-            return int(value)
+            return int(new_value)
         except ValueError:
             print('Please enter a valid whole number.')
 
 def prompt_optional_float(msg:str, current_val: float) -> float:
     '''Prompt for a float or retain the existing value.'''
     while True:
-        value = input(msg).strip()
-        if not value:
+        new_value = input(msg).strip()
+        if not new_value:
             return current_val
         try:
-            return float(value)
+            return float(new_value)
         except ValueError:
             print('Please enter a valid number.')
 

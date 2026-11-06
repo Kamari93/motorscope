@@ -2,6 +2,8 @@ from app import database
 from app.database import initialize_database
 from app.models import VehicleListing
 from app.repositories import VehicleRepository
+import sqlite3
+import pytest
 
 
 def test_add_and_retrieve_listing(tmp_path, monkeypatch):
@@ -87,7 +89,7 @@ def test_get_by_id_returns_vehicle_listing(tmp_path, monkeypatch):
     assert result.model == 'CR-V'
     assert result.year == 2012
     assert result.id == listing_id
-    
+
 
 def test_get_by_id_returns_none_when_missing(tmp_path, monkeypatch):
     test_database_path = tmp_path / "test_motorscope.db"
@@ -213,3 +215,119 @@ def test_delete_returns_false_when_missing(tmp_path, monkeypatch):
     repo = VehicleRepository()
 
     assert repo.delete(999) is False
+
+
+def test_database_rejects_negative_mileage(tmp_path, monkeypatch):
+    '''This test bypasses the service and repository layers to test the database directly for data validation integrity'''
+    test_database_path = tmp_path / "test_motorscope.db"
+    monkeypatch.setattr(
+        database,
+        "DATABASE_PATH",  # redirect DATABASE_PATH to a temporary database so the test doesn’t modify the real data/motorscope.db.
+        test_database_path,
+    )
+    
+    initialize_database()
+
+    with pytest.raises(sqlite3.IntegrityError):
+        with database.get_connection() as connection:
+            connection.execute(
+                '''
+                INSERT INTO vehicle_listings (
+                    make, model, year, mileage, asking_price
+                )
+                VALUES (?, ?, ?, ?, ?)
+                ''',
+                ("Honda", "CR-V", 2015, -100, 12000),
+            )
+
+def test_database_rejects_negative_asking_price(tmp_path, monkeypatch):
+    '''This test bypasses the service and repository layers to test the database directly for data validation integrity'''
+    test_database_path = tmp_path / "test_motorscope.db"
+    monkeypatch.setattr(
+        database,
+        "DATABASE_PATH",  # redirect DATABASE_PATH to a temporary database so the test doesn’t modify the real data/motorscope.db.
+        test_database_path,
+    )
+    
+    initialize_database()
+
+    with pytest.raises(sqlite3.IntegrityError):
+        with database.get_connection() as connection:
+            connection.execute(
+                '''
+                INSERT INTO vehicle_listings (
+                    make, model, year, mileage, asking_price
+                )
+                VALUES (?, ?, ?, ?, ?)
+                ''',
+                ("Honda", "CR-V", 2015, 100, -12000),
+            )
+
+def test_database_rejects_invalid_year(tmp_path, monkeypatch):
+    '''This test bypasses the service and repository layers to test the database directly for data validation integrity'''
+    test_database_path = tmp_path / "test_motorscope.db"
+    monkeypatch.setattr(
+        database,
+        "DATABASE_PATH",  # redirect DATABASE_PATH to a temporary database so the test doesn’t modify the real data/motorscope.db.
+        test_database_path,
+    )
+    
+    initialize_database()
+
+    with pytest.raises(sqlite3.IntegrityError):
+        with database.get_connection() as connection:
+            connection.execute(
+                '''
+                INSERT INTO vehicle_listings (
+                    make, model, year, mileage, asking_price
+                )
+                VALUES (?, ?, ?, ?, ?)
+                ''',
+                ("Honda", "CR-V", 1885, 100, 12000),
+            )
+
+def test_database_rejects_empty_make(tmp_path, monkeypatch):
+    '''This test bypasses the service and repository layers to test the database directly for data validation integrity'''
+    test_database_path = tmp_path / "test_motorscope.db"
+    monkeypatch.setattr(
+        database,
+        "DATABASE_PATH",  # redirect DATABASE_PATH to a temporary database so the test doesn’t modify the real data/motorscope.db.
+        test_database_path,
+    )
+    
+    initialize_database()
+
+    with pytest.raises(sqlite3.IntegrityError):
+        with database.get_connection() as connection:
+            connection.execute(
+                '''
+                INSERT INTO vehicle_listings (
+                    make, model, year, mileage, asking_price
+                )
+                VALUES (?, ?, ?, ?, ?)
+                ''',
+                (" ", "CR-V", 2015, 100, 12000),
+            )
+
+def test_database_rejects_empty_model(tmp_path, monkeypatch):
+    '''This test bypasses the service and repository layers to test the database directly for data validation integrity'''
+    test_database_path = tmp_path / "test_motorscope.db"
+    monkeypatch.setattr(
+        database,
+        "DATABASE_PATH",  # redirect DATABASE_PATH to a temporary database so the test doesn’t modify the real data/motorscope.db.
+        test_database_path,
+    )
+    
+    initialize_database()
+
+    with pytest.raises(sqlite3.IntegrityError):
+        with database.get_connection() as connection:
+            connection.execute(
+                '''
+                INSERT INTO vehicle_listings (
+                    make, model, year, mileage, asking_price
+                )
+                VALUES (?, ?, ?, ?, ?)
+                ''',
+                ("Honda", " ", 2015, 100, 12000),
+            )

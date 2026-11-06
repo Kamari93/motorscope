@@ -25,7 +25,6 @@ def get_connection() -> Generator[sqlite3.Connection, None, None]:
     finally:
         connection.close()
 
-
 def initialize_database() -> None:
     '''Create the vehicle listings db table if it doesn't exist.'''
     with get_connection() as connection:
@@ -33,17 +32,36 @@ def initialize_database() -> None:
             '''
             CREATE TABLE IF NOT EXISTS vehicle_listings (
             id INTEGER PRIMARY KEY,
-            make TEXT NOT NULL,
-            Model TEXT NOT NULL,
-            year INTEGER NOT NULL,
-            mileage INTEGER NOT NULL,
-            asking_price REAL NOT NULL,
+            make TEXT NOT NULL CHECK (length(trim(make)) > 0),
+            Model TEXT NOT NULL CHECK (length(trim(model)) > 0),
+            year INTEGER NOT NULL CHECK (year >= 1886),
+            mileage INTEGER NOT NULL CHECK (mileage >= 0),
+            asking_price REAL NOT NULL CHECK (asking_price >= 0),
             listing_url TEXT,
             source_site TEXT,
             notes TEXT
             )
             '''
         )
+
+# def initialize_database() -> None:
+#     '''Create the vehicle listings db table if it doesn't exist.'''
+#     with get_connection() as connection:
+#         connection.execute(
+#             '''
+#             CREATE TABLE IF NOT EXISTS vehicle_listings (
+#             id INTEGER PRIMARY KEY,
+#             make TEXT NOT NULL,
+#             Model TEXT NOT NULL,
+#             year INTEGER NOT NULL,
+#             mileage INTEGER NOT NULL,
+#             asking_price REAL NOT NULL,
+#             listing_url TEXT,
+#             source_site TEXT,
+#             notes TEXT
+#             )
+#             '''
+#         )
 
 
 # DATABASE_PATH = "data/motorscope.db" # defines where the local database will live

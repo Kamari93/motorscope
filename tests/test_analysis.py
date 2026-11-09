@@ -32,7 +32,7 @@ def test_return_none_for_model_year_is_current_year():
             asking_price=20_000,
         )
 
-    assert calculate_average_annual_mileage(vehicle, 2026) == None
+    assert calculate_average_annual_mileage(vehicle, 2026) is None
 
 def test_below_average_annual_mileage():
     vehicle = VehicleListing(
@@ -46,7 +46,7 @@ def test_below_average_annual_mileage():
     average_annual_mileage = calculate_average_annual_mileage(vehicle, 2026)
     assert assess_annual_mileage(average_annual_mileage, 12_000) == 'Below average.'
 
-def test_about_average_annual_mileage():
+def test_around_average_annual_mileage():
     vehicle = VehicleListing(
             make="Honda",
             model="CR-V",

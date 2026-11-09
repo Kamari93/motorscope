@@ -1,6 +1,8 @@
 from datetime import date
 from app.models import VehicleListing
 
+'''calculations used in maintenance estimates and vehicle comparisons.'''
+
 def calculate_vehicle_age(vehicle: VehicleListing, current_year: int | None = None) -> int:
     '''Calculate vehicle age using its model year.'''
     if current_year is None:

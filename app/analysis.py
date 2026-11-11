@@ -17,7 +17,7 @@ def calculate_average_annual_mileage(vehicle: VehicleListing, current_year: int 
     if vehicle_age <= 0:
         return None
 
-    return vehicle.mileage / vehicle_age
+    return round(vehicle.mileage / vehicle_age, 2)
 
 def assess_annual_mileage(average_annual_mileage: float | None, benchmark: int = 12_000) -> str:
     '''Compare annual mileage against a reference benchmark.'''

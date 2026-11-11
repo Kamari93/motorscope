@@ -1,5 +1,6 @@
 from app.models import VehicleListing
 from app.repositories import VehicleRepository
+from app.analysis import calculate_vehicle_age, calculate_average_annual_mileage, assess_annual_mileage
 from datetime import date
 
 '''Coordinate vehicle listing operations and business rules'''
@@ -44,3 +45,23 @@ class VehicleService:
     def delete_vehicle_listing(self, listing_id: int) -> bool:
         '''Delete an existing listing.'''
         return self.repo.delete(listing_id)
+
+    def analyze_vehicle_listing(self, listing_id: int, current_year: int | None = None) -> dict[str, int | float| str | None] | None:
+        '''Analyze a vehicle listing using its age and mileage.'''
+        vehicle = self.get_vehicle_listing_by_id(listing_id)
+
+        if vehicle is None:
+            return None
+
+        if current_year is None:
+            current_year = date.today().year
+
+        vehicle_age = calculate_vehicle_age(vehicle, current_year)
+        average_annual_mileage = calculate_average_annual_mileage(vehicle)
+        mileage_assessment = assess_annual_mileage(average_annual_mileage)
+
+        return {
+            'vehicle_age': vehicle_age,
+            'average_annual_mileage': average_annual_mileage,
+            'mileage_assessment': mileage_assessment,
+        }

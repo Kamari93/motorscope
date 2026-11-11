@@ -12,6 +12,7 @@ def display_menu() -> None:
     print("3. View listing details")
     print("4. Update listing")
     print("5. Delete listing")
+    print("6. Analyze vehicle listing")
     print("0. Exit")
     print("================================")
 
@@ -200,6 +201,28 @@ def delete_vehicle(service: VehicleService) -> None:
     else:
         print('Deletion cancelled.')
 
+def analyze_vehicle(service: VehicleService) -> None:
+    '''Display analytical information for a vehicle listing.'''
+    listing_id = prompt_int('Enter listing ID: ')
+
+    analysis = service.analyze_vehicle_listing(listing_id)
+
+    if analysis is None:
+        print('Vehicle listing not found.')
+        return
+
+    print("\n--- Vehicle Analysis ---")
+    print(f'Vehicle Age: {analysis['vehicle_age']} years')
+
+    average_mileage = analysis['average_annual_mileage']
+
+    if average_mileage is None:
+        print('Average Annual Mileage: Insufficient data')
+    else:
+        print(f'Average Annual Mileage: {average_mileage:,.0f} miles')
+
+    print(f'Mileage Assessment: {analysis['mileage_assessment']}')
+
 def run_cli(service: VehicleService) -> None:
     '''Run the MotorScope command-line interface.'''
     while True:
@@ -216,6 +239,8 @@ def run_cli(service: VehicleService) -> None:
             update_vehicle(service)
         elif choice == '5':
             delete_vehicle(service)
+        elif choice == '6':
+            analyze_vehicle(service)
         elif choice == '0':
             print('Thank you for using MotorScope!')
             break

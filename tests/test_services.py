@@ -210,3 +210,62 @@ def test__invalid_data_never_reaches_repo(tmp_path, monkeypatch):
     
     assert len(service.get_all_vehicle_listings()) == 0
     assert service.get_vehicle_listing_by_id(1) is None
+
+def test_analyze_existing_vehicle_listing(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+
+    service = VehicleService(VehicleRepository())
+
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2012,
+        mileage=145000,
+        asking_price=6200.00,
+    )
+
+    vehicle_id = service.add_vehicle_listing(vehicle)
+
+    analyzed_vehicle = service.analyze_vehicle_listing(vehicle_id, 2026)
+
+    assert analyzed_vehicle is not None
+    assert analyzed_vehicle['vehicle_age'] == 14
+    assert analyzed_vehicle['average_annual_mileage'] == 10_357.14
+    assert analyzed_vehicle['mileage_assessment'] == 'Around average.'
+
+def test_analyze_vehicle_listing_returns_none_id_not_exist(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+
+    service = VehicleService(VehicleRepository())
+
+    analyzed_vehicle = service.analyze_vehicle_listing(99)
+
+    assert analyzed_vehicle is None
+
+def test_analyze_vehicle_listing_model_year_is_current_year(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+    
+    service = VehicleService(VehicleRepository())
+
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2026,
+        mileage=145000,
+        asking_price=26_000.00,
+    )
+    
+    vehicle_id = service.add_vehicle_listing(vehicle)
+    
+    analyzed_vehicle = service.analyze_vehicle_listing(vehicle_id, 2026)
+
+    assert analyzed_vehicle is not None
+    assert analyzed_vehicle['vehicle_age'] == 0
+    assert  analyzed_vehicle['average_annual_mileage'] is None
+    assert analyzed_vehicle['mileage_assessment'] == 'Insufficient vehicle age for assessment.'

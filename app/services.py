@@ -57,7 +57,7 @@ class VehicleService:
             current_year = date.today().year
 
         vehicle_age = calculate_vehicle_age(vehicle, current_year)
-        average_annual_mileage = calculate_average_annual_mileage(vehicle)
+        average_annual_mileage = calculate_average_annual_mileage(vehicle, current_year)
         mileage_assessment = assess_annual_mileage(average_annual_mileage)
 
         return {

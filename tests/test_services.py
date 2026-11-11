@@ -269,3 +269,25 @@ def test_analyze_vehicle_listing_model_year_is_current_year(tmp_path, monkeypatc
     assert analyzed_vehicle['vehicle_age'] == 0
     assert  analyzed_vehicle['average_annual_mileage'] is None
     assert analyzed_vehicle['mileage_assessment'] == 'Insufficient vehicle age for assessment.'
+
+
+def test_analyze_vehicle_listing_assess_annual_mileage(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+    
+    service = VehicleService(VehicleRepository())
+    
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2012,
+        mileage=315_000,
+        asking_price=6200.00,
+    )
+    
+    vehicle_id = service.add_vehicle_listing(vehicle)
+    
+    analyzed_vehicle = service.analyze_vehicle_listing(vehicle_id, 2026)
+
+    assert analyzed_vehicle['mileage_assessment'] == 'Above average.'

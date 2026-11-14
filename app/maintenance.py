@@ -10,4 +10,4 @@ def estimate_annual_maintenance_cost(vehicle_age: int, annual_mileage: float, ba
     # $0.05 per mile above 12,000 annually
     mileage_adjustment = max(0, annual_mileage - 12_000) * 0.05 
 
-    return base_cost + age_adjustment + mileage_adjustment
+    return round(base_cost + age_adjustment + mileage_adjustment, 2)

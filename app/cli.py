@@ -13,6 +13,7 @@ def display_menu() -> None:
     print("4. Update listing")
     print("5. Delete listing")
     print("6. Analyze vehicle listing")
+    print("7. Estimate annual maintenance")
     print("0. Exit")
     print("================================")
 
@@ -223,6 +224,27 @@ def analyze_vehicle(service: VehicleService) -> None:
 
     print(f'Mileage Assessment: {analysis['mileage_assessment']}')
 
+def estimate_maintenance_cost(service: VehicleService):
+    '''Display estimated annual maintenance costs.'''
+    listing_id = prompt_int('Enter listing ID: ')
+    
+    estimate = service.estimate_annual_maintenance(listing_id)
+
+    if estimate is None:
+        print('Unable to estimate maintenance for this listing.')
+        return 
+
+    print("\n--- Maintenance Estimate ---")
+    print(f'Vehicle Age: {estimate['vehicle_age']} years')
+    print(
+        f'Average Annual Mileage: '
+        f'{estimate['average_annual_mileage']:,.0f} miles'
+    )
+    print(
+        f'Estimated Annual Maintenance: '
+        f'${estimate['estimated_annual_maintenance']:,.2f}'
+    )
+
 def run_cli(service: VehicleService) -> None:
     '''Run the MotorScope command-line interface.'''
     while True:
@@ -241,6 +263,8 @@ def run_cli(service: VehicleService) -> None:
             delete_vehicle(service)
         elif choice == '6':
             analyze_vehicle(service)
+        elif choice == '7':
+            estimate_maintenance_cost(service)
         elif choice == '0':
             print('Thank you for using MotorScope!')
             break

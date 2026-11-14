@@ -291,3 +291,83 @@ def test_analyze_vehicle_listing_assess_annual_mileage(tmp_path, monkeypatch):
     analyzed_vehicle = service.analyze_vehicle_listing(vehicle_id, 2026)
 
     assert analyzed_vehicle['mileage_assessment'] == 'Above average.'
+
+def test_estimate_annual_vehicle_maintenance(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+    
+    service = VehicleService(VehicleRepository())
+    
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2012,
+        mileage=315_000,
+        asking_price=6200.00,
+    )
+
+    vehicle_id = service.add_vehicle_listing(vehicle)
+
+    estimate = service.estimate_annual_maintenance(vehicle_id, 2026)
+
+    assert estimate is not None
+    assert estimate['vehicle_age'] == 14
+    assert estimate['average_annual_mileage'] == 22_500
+    assert estimate['estimated_annual_maintenance'] == 1575 # 600 + 450 + 525  
+
+def test_estimate_annual_vehicle_maintenance_nonexisting_id(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+    
+    service = VehicleService(VehicleRepository())
+
+    estimate = service.estimate_annual_maintenance(999, 2026)
+
+    assert estimate is None
+
+def test_estimate_annual_vehicle_maintenance_insufficient_mileage(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+    
+    service = VehicleService(VehicleRepository())
+
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2026,
+        mileage=10_000,
+        asking_price=2600.00,
+    )
+    
+    vehicle_id = service.add_vehicle_listing(vehicle)
+    
+    estimate = service.estimate_annual_maintenance(vehicle_id, 2026)
+
+    assert estimate is None
+
+def test_estimate_annual_vehicle_maintenance_older_higher_mileage(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+    
+    service = VehicleService(VehicleRepository())
+    
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2010,
+        mileage=415_000,
+        asking_price=6200.00,
+    )
+
+    vehicle_id = service.add_vehicle_listing(vehicle)
+
+    estimate = service.estimate_annual_maintenance(vehicle_id, 2026)
+
+    assert estimate is not None
+    assert estimate['vehicle_age'] == 16
+    assert estimate['average_annual_mileage'] == 25_937.5
+    assert estimate['estimated_annual_maintenance'] == 1846.88 # 600 + 550 + 696.88  

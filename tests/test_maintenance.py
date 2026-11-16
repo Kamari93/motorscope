@@ -24,7 +24,7 @@ def test_estimate_annual_maintenance_cost_above_age_mileage_tresholds():
     
     assert result == 1067.85
 
-def test_estimate_annual_maintenance_cost_custom_base_maintenance_cost():
+def test_estimate_annual_maintenance_cost_custom_base_cost():
     result = estimate_annual_maintenance_cost(
                 vehicle_age = 9,
                 annual_mileage = 17_357,

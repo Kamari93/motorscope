@@ -371,3 +371,125 @@ def test_estimate_annual_vehicle_maintenance_older_higher_mileage(tmp_path, monk
     assert estimate['vehicle_age'] == 16
     assert estimate['average_annual_mileage'] == 25_937.5
     assert estimate['estimated_annual_maintenance'] == 1846.88 # 600 + 550 + 696.88  
+
+def test_estimate_annual_fuel_cost(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+    
+    service = VehicleService(VehicleRepository())
+
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2012,
+        mileage=315_000,
+        asking_price=6200.00,
+    )
+    
+    vehicle_id = service.add_vehicle_listing(vehicle)
+
+    estimate = service.estimate_annual_fuel_cost(vehicle_id, mpg = 28, fuel_price = 3.0, current_year = 2026)
+
+    assert estimate is not None
+    assert estimate['estimated_annual_fuel'] == 2410.71
+
+
+def test_estimate_annual_fuel_cost_non_existing_id(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+    
+    service = VehicleService(VehicleRepository())
+
+    estimate = service.estimate_annual_fuel_cost(listing_id = 99, mpg = 28)
+
+    assert estimate is None
+
+def test_estimate_annual_fuel_cost_insufficient_age(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+    
+    service = VehicleService(VehicleRepository())
+
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2026,
+        mileage=10,
+        asking_price=25000.00,
+    )
+    
+    vehicle_id = service.add_vehicle_listing(vehicle)
+    
+    estimate = service.estimate_annual_fuel_cost(vehicle_id, mpg = 28, fuel_price = 3.0, current_year = 2026)
+
+    assert estimate is None
+
+
+def test_estimate_annual_fuel_cost_higher_mpg(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+    
+    service = VehicleService(VehicleRepository())
+
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2012,
+        mileage=315_000,
+        asking_price=6200.00,
+    )
+    
+    vehicle_id = service.add_vehicle_listing(vehicle)
+    
+    estimate = service.estimate_annual_fuel_cost(vehicle_id, mpg = 32, fuel_price = 3.0, current_year = 2026)
+
+    assert estimate is not None
+    assert estimate['estimated_annual_fuel'] == 2109.38 # 22500 / 32 = 703.13 * 3
+
+def test_estimate_annual_fuel_cost_higher_fuel_price(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+    
+    service = VehicleService(VehicleRepository())
+
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2012,
+        mileage=315_000,
+        asking_price=6200.00,
+    )
+    
+    vehicle_id = service.add_vehicle_listing(vehicle)
+    
+    estimate = service.estimate_annual_fuel_cost(vehicle_id, mpg = 28, fuel_price = 5.0, current_year = 2026)
+
+    assert estimate is not None
+    assert estimate['estimated_annual_fuel'] == 4017.86 # 22500 / 28 = 703.13 * 5
+
+def test_estimate_annual_fuel_cost_invalid_mpg(tmp_path, monkeypatch):
+    test_database_path = tmp_path / 'test_motorscope.db'
+    monkeypatch.setattr(database, 'DATABASE_PATH', test_database_path)
+    initialize_database()
+    
+    service = VehicleService(VehicleRepository())
+
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2012,
+        mileage=315_000,
+        asking_price=6200.00,
+    )
+    
+    vehicle_id = service.add_vehicle_listing(vehicle)
+
+    with pytest.raises(ValueError, match = 'MPG must be greater than zero.'):
+        service.estimate_annual_fuel_cost(
+            vehicle_id, mpg = 0, fuel_price = 5.0, current_year = 2026
+        )

@@ -3,6 +3,7 @@ from app.repositories import VehicleRepository
 from app.analysis import calculate_vehicle_age, calculate_average_annual_mileage, assess_annual_mileage
 from app.maintenance import estimate_annual_maintenance_cost
 from app.fuel import estimate_annual_fuel_cost
+from app.ownership import calculate_annual_ownership_cost
 from datetime import date
 
 '''Coordinate vehicle listing operations and business rules'''
@@ -106,4 +107,24 @@ class VehicleService:
             'vehicle_age': analysis['vehicle_age'],
             'average_annual_mileage': annual_mileage,
             'estimated_annual_fuel': estimated_annual_fuel
+        }
+
+    def estimate_annual_ownership_cost(self, listing_id: int, mpg: float, fuel_price: float = 3.0, current_year: int | None = None) -> dict | None:
+        '''Estimate annual and monthly vehicle ownership expenses.'''
+        maintenance = self.estimate_annual_maintenance(listing_id, current_year)
+
+        if maintenance is None:
+            return None
+
+        fuel_cost = self.estimate_annual_fuel_cost(listing_id, mpg, fuel_price, current_year)
+
+        if fuel_cost is None:
+            return None
+
+        ownership_cost = calculate_annual_ownership_cost(annual_maintenance = maintenance['estimated_annual_maintenance'], annual_fuel = fuel_cost['estimated_annual_fuel'])
+
+        return {
+            'vehicle_age': maintenance['vehicle_age'],
+            'average_annual_mileage': maintenance['average_annual_mileage'],
+            **ownership_cost,
         }

@@ -493,3 +493,108 @@ def test_estimate_annual_fuel_cost_invalid_mpg(tmp_path, monkeypatch):
         service.estimate_annual_fuel_cost(
             vehicle_id, mpg = 0, fuel_price = 5.0, current_year = 2026
         )
+
+def test_estimate_annual_ownership_cost(tmp_path, monkeypatch):
+    test_database_path = tmp_path / "test_motorscope.db"
+    monkeypatch.setattr(database, "DATABASE_PATH", test_database_path)
+    initialize_database()
+
+    service = VehicleService(VehicleRepository())
+
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2012,
+        mileage=315_000,
+        asking_price=6200.00,
+    )
+
+    vehicle_id = service.add_vehicle_listing(vehicle)
+
+    estimate = service.estimate_annual_ownership_cost(
+        vehicle_id,
+        mpg=28,
+        fuel_price=3.00,
+        current_year=2026,
+    )
+
+    assert estimate is not None
+    assert estimate["vehicle_age"] == 14
+    assert estimate["average_annual_mileage"] == 22500
+    assert estimate["annual_maintenance"] == 1575.00
+    assert estimate["annual_fuel"] == 2410.71
+    assert estimate["total_annual_cost"] == 3985.71
+    assert estimate["average_monthly_cost"] == 332.14
+
+
+def test_estimate_annual_ownership_cost_non_existent_listing(tmp_path, monkeypatch):
+    test_database_path = tmp_path / "test_motorscope.db"
+    monkeypatch.setattr(database, "DATABASE_PATH", test_database_path)
+    initialize_database()
+
+    service = VehicleService(VehicleRepository())
+
+    estimate = service.estimate_annual_ownership_cost(
+        999,
+        mpg=28,
+        fuel_price=3.00,
+        current_year=2026,
+    )
+
+    assert estimate is None
+
+
+def test_estimate_annual_ownership_cost_insufficient_age(tmp_path, monkeypatch):
+    test_database_path = tmp_path / "test_motorscope.db"
+    monkeypatch.setattr(database, "DATABASE_PATH", test_database_path)
+    initialize_database()
+
+    service = VehicleService(VehicleRepository())
+
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2026,
+        mileage=1000,
+        asking_price=26_000.00,
+    )
+
+    vehicle_id = service.add_vehicle_listing(vehicle)
+
+    estimate = service.estimate_annual_ownership_cost(
+        vehicle_id,
+        mpg=28,
+        fuel_price=3.00,
+        current_year=2026,
+    )
+
+    assert estimate is None
+
+def test_estimate_annual_ownership_cost_zero_mpg(tmp_path, monkeypatch):
+    '''tesing how errors propagate through multiple layers of the app
+    since the value error would come from the annual_fuel_cost()'''
+    test_database_path = tmp_path / "test_motorscope.db"
+    monkeypatch.setattr(database, "DATABASE_PATH", test_database_path)
+    initialize_database()
+
+    service = VehicleService(VehicleRepository())
+
+    vehicle = VehicleListing(
+        make="Honda",
+        model="CR-V",
+        year=2016,
+        mileage=1000,
+        asking_price=16_000.00,
+    )
+
+    vehicle_id = service.add_vehicle_listing(vehicle)
+
+    with pytest.raises(ValueError, match = 'MPG must be greater than zero.'):
+        service.estimate_annual_ownership_cost(
+        vehicle_id,
+        mpg=0,
+        fuel_price=3.00,
+        current_year=2026,
+    )
+
+    

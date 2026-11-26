@@ -14,7 +14,8 @@ def display_menu() -> None:
     print("5. Delete listing")
     print("6. Analyze vehicle listing")
     print("7. Estimate annual maintenance")
-    print("8. Estimate Annual Fuel Expense")
+    print("8. Estimate annual fuel expense")
+    print("9. Estimate annual ownership expense")
     print("0. Exit")
     print("================================")
 
@@ -228,12 +229,19 @@ def analyze_vehicle(service: VehicleService) -> None:
 def estimate_maintenance_cost(service: VehicleService):
     '''Display estimated annual maintenance costs.'''
     listing_id = prompt_int('Enter listing ID: ')
-    
-    estimate = service.estimate_annual_maintenance(listing_id)
 
-    if estimate is None:
-        print('Unable to estimate maintenance for this listing.')
-        return 
+    try:
+        estimate = service.estimate_annual_maintenance(listing_id)
+        if estimate is None:
+            print('Unable to estimate maintenance for this listing.')
+            return 
+    except ValueError as e:
+            print(f'Invalid input: {e}')
+            return 
+
+    # if estimate is None:
+    #     print('Unable to estimate maintenance for this listing.')
+    #     return 
 
     print("\n--- Maintenance Estimate ---")
     print(f'Vehicle Age: {estimate['vehicle_age']} years')
@@ -252,18 +260,55 @@ def estimate_fuel_cost(service: VehicleService):
     mpg = prompt_float('Enter vehicle MPG: ')
     fuel_price = prompt_float('Enter fuel price per gallon: ')
 
-    estimate = service.estimate_annual_fuel_cost(listing_id, mpg, fuel_price)
+    try:
+        estimate = service.estimate_annual_fuel_cost(listing_id, mpg, fuel_price)
+        if estimate is None:
+            print('Unable to estimate fuel expenses for this listing.')
+            return
+    except ValueError as e:
+        print(f'Invalid input: {e}')
+        return 
 
-    if estimate is None:
-        print('Unable to estimate fuel expenses for this listing.')
-        return
+    # if estimate is None:
+    #     print('Unable to estimate fuel expenses for this listing.')
+    #     return
 
     print("\nAnnual Fuel Cost Estimate")
     print("----------------------------")
     print(f'Vehicle Age: {estimate['vehicle_age']} years')
     print(f'Average annual mileage: {estimate['average_annual_mileage']:,.0f} miles')
     print(f'Estimated annual fuel cost: ${estimate['estimated_annual_fuel']:,.2f}')
-    
+
+def estimate_ownership_cost(service: VehicleService):
+    '''Display the combined ownership estimate'''
+    listing_id = prompt_int('Enter listing ID: ')
+    mpg = prompt_float('Enter vehicle MPG: ')
+    fuel_price = prompt_float('Enter fuel price per gallon: ')
+
+    try:
+        estimate = service.estimate_annual_ownership_cost(listing_id, mpg, fuel_price)
+        if estimate is None:
+            print('Unable to estimate ownership costs for this listing.')
+            return
+    except ValueError as e:
+            print(f'Invalid input: {e}')
+            return 
+
+    # if estimate is None:
+    #     print('Unable to estimate ownership costs for this listing.')
+    #     return
+
+    print('\nAnnual Ownership Cost Estimate')
+    print("----------------------------")
+    print(f'Vehicle Age: {estimate['vehicle_age']} years')
+    print(f'Average annual mileage: {estimate['average_annual_mileage']:,.0f} miles')
+    print(f'Annual maintenance: ${estimate['annual_maintenance']:,.2f}')
+    print(f'Estimated annual fuel cost: ${estimate['annual_fuel']:,.2f}')
+    print(f'Total annual cost: ${estimate['total_annual_cost']:,.2f}')
+    print(f'Average monthly cost: ${estimate['average_monthly_cost']:,.2f}')
+
+
+
 def run_cli(service: VehicleService) -> None:
     '''Run the MotorScope command-line interface.'''
     while True:
@@ -286,6 +331,8 @@ def run_cli(service: VehicleService) -> None:
             estimate_maintenance_cost(service)
         elif choice == '8':
             estimate_fuel_cost(service)
+        elif choice == '9':
+            estimate_ownership_cost(service)
         elif choice == '0':
             print('Thank you for using MotorScope!')
             break
